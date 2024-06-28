@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,12 +9,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Serialization;
-using Microsoft.EntityFrameworkCore;
 using System.IO;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using WebAPIv1._1.Service.Alpha;
+using WebAPIv1._1.ARepository;
+using WebAPIv1._1.AModels;
+//using WebAPIv1._1.Controllers.Alpha.External;
+using Microsoft.EntityFrameworkCore;
+using WebAPIv1._1.MySQLModels;
 
 namespace WebAPIv1._1
 {
@@ -32,9 +35,26 @@ namespace WebAPIv1._1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            // options.UseSqlServer(Configuration.GetConnectionString("MBGSPMainDBCon")));
+            //services.AddDbContext<ProjectAlphaV1Context>(options =>
+            // options.UseSqlServer(Configuration.GetConnectionString("MainDBCon")));
 
+            services.AddDbContext<MySQLModels.ProjectAlphaV1Context>(options =>
+             options.UseMySQL(Configuration.GetConnectionString("MainDBCon")));
+
+            services.AddScoped(typeof(ARepository<>));
+            services.AddScoped<AAdministratorService>();
+            services.AddScoped<AContactUsService>();
+            services.AddScoped<AFLinkService>();
+            services.AddScoped<AFooterService>();
+            services.AddScoped<AheaderService>();
+            services.AddScoped<AHeaderServicesService>();
+            services.AddScoped<APersonInformationService>();
+            services.AddScoped<APropertyAmenitiesService>();
+            services.AddScoped<APropertyInlusionsService>();
+            services.AddScoped<APropertyService>();
+            services.AddScoped<AUserService>();
+            services.AddScoped<IFileService, FileService>();
+            services.AddScoped<AContactUsService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -64,8 +84,8 @@ namespace WebAPIv1._1
                 s.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
                 {
                     Version = "V1",
-                    Title = "Business Web API",
-                    Description = "API for Main Application"
+                    Title = "Project Alpha API",
+                    Description = "Documentation for the Project Alpha APIs"
                 });
             });
         }
@@ -88,7 +108,7 @@ namespace WebAPIv1._1
             app.UseSwaggerUI(c =>
             {
                 string swaggerJsonBasePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
-                c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Business Web API");
+                c.SwaggerEndpoint($"{swaggerJsonBasePath}/swagger/v1/swagger.json", "Project Alpha API");
 
             });
             app.UseHttpsRedirection();
@@ -100,6 +120,14 @@ namespace WebAPIv1._1
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseStaticFiles(); // Enable static file serving
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(Directory.GetCurrentDirectory(), "Uploads")),
+                RequestPath = "/Uploads"
             });
         }
     }
