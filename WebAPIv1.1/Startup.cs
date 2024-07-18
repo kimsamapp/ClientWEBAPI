@@ -20,6 +20,7 @@ using WebAPIv1._1.AModels;
 //using WebAPIv1._1.Controllers.Alpha.External;
 using Microsoft.EntityFrameworkCore;
 using WebAPIv1._1.MySQLModels;
+using WebAPIv1._1.Service.External;
 
 namespace WebAPIv1._1
 {
@@ -54,6 +55,7 @@ namespace WebAPIv1._1
             services.AddScoped<APropertyService>();
             services.AddScoped<AUserService>();
             services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IClientService, ClientService>();
             services.AddScoped<AContactUsService>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using WebAPIv1._1.MySQLModels;
@@ -53,5 +54,28 @@ namespace WebAPIv1._1.Controllers.Alpha.External
             await _service.DeleteContactAsync(id);
             return NoContent();
         }
+
+        [Authorize]
+        [HttpPut("updatePropertyCode/{propertyId}")]
+        public async Task<IActionResult> UpdatePropertyCode(int propertyId, [FromBody] string newPropertyCode)
+        {
+            if (string.IsNullOrEmpty(newPropertyCode))
+            {
+                return BadRequest("New property code cannot be empty.");
+            }
+
+            var result = await _service.UpdatePropertyCodeAsync(propertyId, newPropertyCode);
+
+            if (result)
+            {
+                return Ok($"Property with ID {propertyId} updated successfully.");
+            }
+            else
+            {
+                return NotFound($"Property with ID {propertyId} not found.");
+            }
+        }
+
+
     }
 }
